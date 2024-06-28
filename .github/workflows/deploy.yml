@@ -1,0 +1,36 @@
+name: Deploy to AWS
+
+on:
+  push:
+    branches:
+      -master
+
+jobs:
+  deploy:
+    runs-on: ubunto-latest
+
+    steps:
+      - name: chekout code
+        uses: action/checkout@v2
+
+      - name: set up node.js
+        uses: action/setup-node@v2
+        with:
+            node-version: '14'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build the project
+        run: npm run build
+
+      - name: Deploy to AWS
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: 'sa-east-1'
+          run:
+          aws s3 sync build/ s3://<NOME_DO_SEU_BUCKET_S3> --delete aws cloudfront create-invalidation --distribution-id <ID_DA_DISTRIBUICAO_CLOUDFRONT> --paths "/*"
+
+          
+
